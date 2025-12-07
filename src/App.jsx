@@ -15,6 +15,19 @@ import {
   Table
 } from 'lucide-react';
 
+// =================================================================================================
+// FIX for Vercel Deployment Error: "vite: command not found"
+//
+// The deployment failed because Vercel could not find the 'vite' executable globally.
+// This is usually fixed by ensuring your 'package.json' has the correct dependencies
+// (like 'vite' and 'react' under 'dependencies' or 'devDependencies') and that
+// the Vercel Build Command is set to 'npm run build'.
+//
+// If the error persists, ensure your package.json is committed and try overriding
+// the Vercel build command to use the local runner explicitly in your Vercel settings:
+// BUILD COMMAND: npm run build -- --base /
+// =================================================================================================
+
 // Script Loading Helper
 const loadScript = (src) => {
   return new Promise((resolve, reject) => {
@@ -30,6 +43,15 @@ const loadScript = (src) => {
   });
 };
 
+// Helper to determine QR Payload (Single Value vs JSON)
+const getQrPayload = (record) => {
+  const keys = Object.keys(record);
+  if (keys.length === 1) {
+    return String(record[keys[0]]); // Use raw value if only one field
+  }
+  return JSON.stringify(record); // Use JSON object if multiple fields
+};
+
 // Moved QRCard outside to prevent re-renders losing focus/state
 const QRCard = ({ record, idx, config, libsLoaded }) => {
   const [qrSrc, setQrSrc] = useState('');
@@ -37,7 +59,8 @@ const QRCard = ({ record, idx, config, libsLoaded }) => {
   useEffect(() => {
     // Ensure QRCode library is loaded before attempting to use it
     if (window.QRCode && libsLoaded) {
-      window.QRCode.toDataURL(JSON.stringify(record), { width: 150, margin: 1 })
+      const payload = getQrPayload(record);
+      window.QRCode.toDataURL(payload, { width: 150, margin: 1 })
         .then(url => setQrSrc(url))
         .catch(err => console.error(err));
     }
@@ -81,7 +104,8 @@ export default function App() {
   const [activeMobileTab, setActiveMobileTab] = useState('input'); // 'input' | 'preview'
 
   // Manual Entry State
-  const [manualFields, setManualFields] = useState(['ID', 'Name']); // Default keys
+  // UPDATED: Default to single 'Value' field
+  const [manualFields, setManualFields] = useState(['Value']); 
   const [currentEntry, setCurrentEntry] = useState({});
 
   // Configuration State
@@ -234,9 +258,11 @@ export default function App() {
 
       for (let i = 0; i < records.length; i++) {
         const record = records[i];
-        const jsonPayload = JSON.stringify(record);
         
-        const qrDataUrl = await window.QRCode.toDataURL(jsonPayload, {
+        // UPDATED: Use logic to determine if single string or JSON object
+        const payload = getQrPayload(record);
+        
+        const qrDataUrl = await window.QRCode.toDataURL(payload, {
           errorCorrectionLevel: 'M',
           margin: 0, 
           width: 200 
@@ -366,7 +392,7 @@ export default function App() {
                   </span>
                 ))}
                 <button onClick={addManualField} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 flex items-center gap-1">
-                  <Plus size={12} /> Key
+                  <Plus size={12} /> Add
                 </button>
               </div>
 
@@ -387,7 +413,7 @@ export default function App() {
                   onClick={addManualRecord}
                   className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2"
                 >
-                  <Plus size={16} /> Add Record
+                  <Plus size={16} /> Generate QR
                 </button>
               </div>
             </div>
