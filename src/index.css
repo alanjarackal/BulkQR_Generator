@@ -1,4 +1,35 @@
+
+/*
+ * This file contains the standard setup required to enable Tailwind CSS 
+ * in a modern Vite/React project.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* * Global styles applied to the entire application.
+ * Using Inter font-family for a clean, modern look.
+ */
 :root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Setting root colors for default app background */
+  color-scheme: light dark;
+  color: #1f2937; /* Gray-800 */
+  background-color: #f9fafb; /* Gray-50 */
+}
+
+/* Ensure the body and root elements fill the viewport */
+body, #root {
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+/* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -65,4 +96,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
