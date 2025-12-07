@@ -89,5 +89,6 @@ These are essential for Vite to generate the final CSS classes.
 
 
 
+![QR](https://github.com/user-attachments/assets/a7b7f685-5304-4bc5-9931-82d7acee17f6)
 
 
